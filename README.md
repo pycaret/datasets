@@ -1,2 +1,2 @@
-# datasets
+# Datasets
 Datasets used in PyCaret
