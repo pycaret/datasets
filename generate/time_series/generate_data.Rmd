@@ -26,6 +26,7 @@ pacman::p_load(dplyr, tswge)
 
 ```{r}
 data_dir = "../../data/time_series/seasonal/"
+info_dir = "../../info/time_series/seasonal/"
 ```
 
 
@@ -106,8 +107,8 @@ for (s in 1:52){
         theta=paste(theta, collapse=" ")
       ) 
       
-      file_name = paste0(data_dir, n_total, ".csv")
-      write.csv(y, file_name, row.names = FALSE)
+      ts_file_name = paste0(data_dir, n_total, ".csv")
+      write.csv(y, ts_file_name, row.names = FALSE)
       
     }
   }
@@ -116,7 +117,8 @@ for (s in 1:52){
 ```
 
 ```{r}
-write.csv(results, "seasonal_dataset_info.csv", row.names = FALSE)
+info_file_name = paste0(info_dir, "info.csv")
+write.csv(results, info_file_name, row.names = FALSE)
 ```
 
 ```{r}
