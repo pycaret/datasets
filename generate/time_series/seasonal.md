@@ -1,7 +1,7 @@
 Generate Seasonal Data
 ================
 Nikhil Gupta
-2021-10-16 06:35:27
+2021-10-16 09:37:29
 
 ``` r
 if (!require("pacman")) install.packages("pacman")
@@ -15,7 +15,7 @@ pacman::p_load(dplyr, tswge)
 
 ``` r
 data_dir = "../../data/time_series/seasonal/"
-info_dir = "../../info/time_series/seasonal/"
+meta_dir = "../../meta/time_series/seasonal/"
 ```
 
 ``` r
@@ -1405,8 +1405,8 @@ for (s in 1:52){
     ##  PASS: TRUE
 
 ``` r
-info_file_name = paste0(info_dir, "info.csv")
-write.csv(results, info_file_name, row.names = FALSE)
+meta_file_name = paste0(meta_dir, "index.csv")
+write.csv(results, meta_file_name, row.names = FALSE)
 ```
 
 ``` r
