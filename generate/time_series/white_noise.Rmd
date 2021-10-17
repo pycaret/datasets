@@ -1,0 +1,132 @@
+---
+title: "Generate White Noise Data"
+author: "Nikhil Gupta"
+date: "`r Sys.time()`"
+always_allow_html: yes
+output:
+  github_document:
+    toc: true
+    toc_depth: 6
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 6
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(dplyr, tswge)
+```
+
+```{r}
+data_dir = "../../data/time_series/white_noise/"
+meta_dir = "../../meta/time_series/white_noise/"
+```
+
+
+```{r}
+# Remove current files
+do.call(file.remove, list(list.files(data_dir, full.names = TRUE)))
+```
+
+```{r}
+seed=42
+set.seed(seed)
+
+n_total = 0
+n_pass = 0
+n_error = 0
+nreps = 500  # Number of time series to generate
+
+
+results = tribble(~index, ~s, ~d, ~p, ~q, ~n, ~rep, ~mean, ~vara, ~seed, ~phi, ~theta)
+
+for (rep in 1:nreps){
+  s = 0
+  d = 0
+  p = 0
+  q = 0
+      
+  # At least as many points as needed to compute the statistics
+  n_min = 20
+  len_multiplier = sample(2:100, 1)
+  n = sample(n_min:(n_min*len_multiplier), size=1)
+  
+  mean = sample(-1000:1000, 1)
+  vara = abs(rnorm(1, mean=0, sd=abs(mean/100)))  # Noise Variance
+  sn = rep
+  
+  print(paste0("s=", s, " d=", d, " p=", p, " q=", q, " n=", n, " mean=", mean, " vara=", vara, " rep=",  rep, " sn=",  sn))
+  
+  pass = FALSE
+  while (pass == FALSE){
+  set.seed(n_error)
+  
+    if (p == 0){
+      phi = 0
+    }else {
+      phi = rnorm(n=p, mean=0, sd=0.5)  
+    }
+    if (q == 0){
+      theta = 0
+    }else {
+      theta = rnorm(n=q, mean=0, sd=0.5)
+    }
+    
+    tryCatch(
+      {
+        y = mean + gen.aruma.wge(n=n, phi=phi, theta=theta, d=d, s=s, vara=vara, sn=sn, plot=FALSE)
+        # plotts.sample.wge(y, lag.max=max(s*2, 25))
+        pass = TRUE
+        cat(paste0("\tPASS: ", pass, "\n"))
+        n_pass = n_pass + 1
+      }, error=function(e){
+        n_error <<- n_error + 1
+        cat(paste0("\tPASS: ", pass, " --> ERROR: ",conditionMessage(e), "\n"))
+      }
+    )
+  }
+  
+  n_total = n_total + 1
+  
+  results = results %>% add_row(
+    index=n_total,
+    s=s, d=d, p=p, q=q,
+    n=n,
+    rep=rep,
+    mean=mean,
+    vara=vara,
+    seed=sn,
+    phi=paste(phi, collapse=" "),
+    theta=paste(theta, collapse=" ")
+  ) 
+  
+  ts_file_name = paste0(data_dir, n_total, ".csv")
+  write.csv(y, ts_file_name, row.names = FALSE)
+
+}
+
+```
+
+```{r}
+meta_file_name = paste0(meta_dir, "index.csv")
+write.csv(results, meta_file_name, row.names = FALSE)
+```
+
+```{r}
+print(results)
+print(paste0("Total: ", n_total, " Error: ", n_error, " Pass: ", n_pass))
+```
+
+```{r}
+results %>% 
+  group_by(s, d) %>% 
+  mutate(n=n(), mean_p= mean(p), sd_p = sd(p), mean_q= mean(q), sd_q = sd(q))
+```
+
