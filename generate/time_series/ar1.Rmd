@@ -1,5 +1,5 @@
 ---
-title: "Generate AR(1) Data (positive phi)"
+title: "Generate AR(1) Data"
 author: "Nikhil Gupta"
 date: "`r Sys.time()`"
 always_allow_html: yes
@@ -47,7 +47,7 @@ nreps = 5
 
 results = tribble(~index, ~s, ~d, ~p, ~q, ~n, ~rep, ~mean, ~vara, ~seed, ~phi, ~theta)
 
-for (phi in seq(0.01, 0.99, 0.01)){
+for (phi in seq(0.99, -0.99, -0.01)){
   for (rep in 1:nreps){
     s = 0
     d = 0
